@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<!--[if IE 8 ]>    <html lang="en-US" class="ie8"> <![endif]-->
+<!--[if IE 9 ]>    <html lang="en-US" class="ie9"> <![endif]-->
+<!--[if (gt IE 9)|!(IE)]><!-->
+<html lang="en-US">
+<!--<![endif]-->
+<head>
+<meta charset="UTF-8" />
+<!--[if lt IE 8 ]><meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1"><![endif]-->
+<title>Kenya Data Cube</title>
+<meta name="author" content="The Design Group">
+<!-- Viewport -->
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="stylesheet" href="assets/jquery-ui-1.11.4.custom/jquery-ui.css" type="text/css" media="screen, projection" />
+<link rel="stylesheet" href="assets/css/style.css" type="text/css" media="screen, projection" />
+<script src="jquery-2.1.4.min.js"></script>
+<script src="assets/jquery-ui-1.11.4.custom/jquery-ui.js"></script>
+<!--<script src="https://maps.googleapis.com/maps/api/js?v=3.exp&libraries=drawing"></script>-->
+<script src="drawmap.js"></script>
+<style>
+.title {
+	margin-left: auto;
+	margin-right: auto;
+	border-bottom: 2px solid black;
+	padding-bottom: 5px;
+	box-shadow: inset 0 -2px 0 #d9d8a2;
+	text-align: center;
+}
+
+.center {
+	margin-left:auto;
+	margin-right:auto;
+	width:75%;
+	color:rgb(105,105,105);
+}
+td {
+	padding: 15px 5px 15px 5px;
+}
+</style>
+
+</head>
+<body>
+<div id="wrap">
+	<header id="header-main">
+		<div class="spacer"></div>
+		<h1 id="brand-main"><a href="#"></a><img src="assets/media/alpha.png" style="postion:absolute"></h1>
+
+		<nav id="main-nav">
+
+			<ul>
+				<li><a href="index.html">Home</a></li>
+				<li><a href="map_tool.html">Map Tool</a></li>
+				<li><a href="graph_tool.html">Graph Tool</a></li>
+				<li class="active"><a href="#">Task Manager</a></li>
+				<li><a href="Cesium/Apps/PixelVisualization/index.html">Visualization<img src="assets/icons/flask2.png" /></a></li>
+			</ul>
+		</nav>
+		<nav id="utility-nav">
+			<ul>
+				<li><a href="" class="nav-properties">Preferences</a></li>
+				<li><a href="" class="nav-help">Help</a></li>
+				<li><a href="" class="nav-cset">CSET</a></li>
+			</ul>
+		</nav>
+	</header>
+	<div class="wrapper">
+		<div class="center">
+		<!--<div class="graph-container" style="background: url(assets/media/webTasks.jpg) no-repeat center top; width:100%; height:500px;"> </div>-->
+		<h1 class="title">Task Manager</h1>
+		<h2>
+			<div id="task_list">
+
+			</div>
+		<script>
+			var w = new Worker("tmw.js?q="+Math.round((Math.random()*9999)));
+			w.postMessage("start");
+
+			w.onmessage=function(event){
+			var ihtml = event.data;
+			$("#task_list").html(ihtml);
+			};
+		</script>
+	</h2>
+	</div>
+</div>
+</div>
+
+
+</body>
+</html>

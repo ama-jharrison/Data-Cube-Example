@@ -1,0 +1,648 @@
+<!DOCTYPE html>
+<!--[if IE 8 ]>    <html lang="en-US" class="ie8"> <![endif]-->
+<!--[if IE 9 ]>    <html lang="en-US" class="ie9"> <![endif]-->
+<!--[if (gt IE 9)|!(IE)]><!-->
+<html lang="en-US">
+<!--<![endif]-->
+<head>
+<meta charset="UTF-8" />
+<!--[if lt IE 8 ]><meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1"><![endif]-->
+<title>Kenya Data Cube</title>
+<meta name="author" content="The Design Group">
+<!-- Viewport -->
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="stylesheet" href="assets/jquery-ui-1.11.4.custom/jquery-ui.css" type="text/css" media="screen, projection" />
+<link rel="stylesheet" href="assets/css/style.css" type="text/css" media="screen, projection" />
+<script src="jquery-2.1.4.min.js"></script>
+<script src="assets/jquery-ui-1.11.4.custom/jquery-ui.js"></script>
+<!--<script src="https://maps.googleapis.com/maps/api/js?v=3.exp&libraries=drawing"></script>-->
+<script src="drawmap.js"></script>
+<script>
+function build_criteria(){
+	start = $("#startdate_selector").val().replace(/\s/g,'');
+	end = $("#enddate_selector").val().replace(/\s/g,'');
+	x_arr = $("#xcell_selector").val().replace(/\s/g,'');
+	if(x_arr.slice(-1) == ','){
+                x_arr=x_arr.slice(0,-1);
+        }
+	y_arr = $("#ycell_selector").val().replace(/\s/g,'');
+	if(y_arr.slice(-1) == ','){
+                y_arr=y_arr.slice(0,-1);
+        }
+	sat_arr = $("#satellite_selector").val().replace(/\s/g,'');
+	if(sat_arr.slice(-1) == ','){
+		sat_arr=sat_arr.slice(0,-1);
+	}
+	criteria_str = x_arr+'_'+y_arr+'_'+start+'_'+end+'_'+sat_arr;
+	jsonUrl = "http://bigdata-node1.ama-inc.com:5000/list/"+criteria_str;
+	$.get(jsonUrl,function(data) {
+		tile_results = $.parseJSON(data);
+		$('.slider').click();
+		$('.slider_right').click();
+		$("#tile_list").html("");
+		show_tile_results();
+		for(var i=0;i<tile_results.tiles.length;i++) {
+			$("#tile_list").append("<li>"+tile_results.tiles[i].x+","+tile_results.tiles[i].y+": "+tile_results.tiles[i].date+"</li>");
+		}
+	});
+
+}
+
+function build_mosaic(){
+	if(window.getting_mosaic==1){
+		return;
+	}
+        start = $("#startdate_selector").val().replace(/\s/g,'');
+        end = $("#enddate_selector").val().replace(/\s/g,'');
+        x_arr = $("#xcell_selector").val().replace(/\s/g,'');
+	if(x_arr.slice(-1) == ','){
+                x_arr=x_arr.slice(0,-1);
+        }
+        y_arr = $("#ycell_selector").val().replace(/\s/g,'');
+	if(y_arr.slice(-1) == ','){
+                y_arr=y_arr.slice(0,-1);
+        }
+	window.x_size = x_arr.split(',').length;
+	window.y_size = y_arr.split(',').length;
+
+        sat_arr = $("#satellite_selector").val().replace(/\s/g,'');
+	if(sat_arr.slice(-1) == ','){
+                sat_arr=sat_arr.slice(0,-1);
+        }
+        criteria_str = x_arr+'_'+y_arr+'_'+start+'_'+end+'_'+sat_arr;
+	mode = $("#mosaic_type").val();
+	jsonUrl="";
+	if(mode == "true_color") {
+	        jsonUrl = "http://bigdata-node1.ama-inc.com:5000/cloudfree/"+criteria_str;
+	}
+	else if(mode == "tci") {
+                jsonUrl = "http://bigdata-node1.ama-inc.com:5000/tci/"+criteria_str;
+	}
+	else if(mode == "false_color") {
+                jsonUrl = "http://bigdata-node1.ama-inc.com:5000/falsecolor/"+criteria_str;
+	}
+        $.get(jsonUrl,function(data) {
+                result = $.parseJSON(data);
+		if(result.request != 'WAIT' && result.request != 'SIZE'){
+			$("#cloudfree_img").attr('height','500px');
+                        $("#cloudfree_img").attr('width','500px');
+			$('#cloudfree_img').attr('src','http://bigdata-node1.ama-inc.com/loading.gif');
+			window.getting_mosaic = 1;
+			show_loading();
+			setTimer(result.request);
+		}
+		else {
+			alert("Please try again later! Maximum size is 4 cells in this demo!");
+		}
+
+        });
+
+}
+function setTimer(reqid){
+	 window.session = window.setInterval(check_mosaic,5000,reqid);
+}
+function check_mosaic(reqid){
+        if(window.getting_mosaic==0){
+		console.log("Can't check a mosaic job that hasn't been submitted!");
+                return;
+        }
+        jsonUrl = "http://bigdata-node1.ama-inc.com:5000/getimage/"+reqid;
+        $.get(jsonUrl,function(data) {
+		console.log("checking if job "+reqid+" is done...");
+                result = $.parseJSON(data);
+		console.log("Response: "+result.request);
+                if(result.request != 'WAIT'){
+			console.log("Job finished!");
+			$("#cloudfree_img").attr('height',String(250*parseInt(window.y_size))+'px');
+			$("#cloudfree_img").attr('width',String(250*parseInt(window.x_size))+'px');
+                        $('#cloudfree_img').attr('src','http://bigdata-node1.ama-inc.com/'+result.request);
+			window.clearInterval(window.session);
+                        window.getting_mosaic = 0;
+                }
+                else {
+                        console.log(result);
+			//setTimer(reqid);
+
+                }
+
+        });
+
+}
+function show_search() {
+	$(".slider").click();
+}
+function show_loading() {
+	//$("#mosaic_title").click();
+	//var current = window.tile_results_panel.accordion("option","active"),
+		//maximum = window.tile_results_panel.find("h3").length,
+		//next = current+1 === maximum? 0:current+1;
+	//console.log("Loading panel: "+next);
+	window.tile_results_panel.accordion("option","active",1);
+}
+function show_tile_results(){
+	window.tile_results_panel.accordion("option","active",0);
+}
+//slide out criteria panel
+$(function(){
+	$('.optionsSlider').click(function(){
+		if($(this).hasClass('show')){
+			$(".left_panel").animate({
+				left:"+=400"
+				}, 700, function() {
+					if($(".resultsSlider").hasClass('hide')){
+						$(".resultsSlider").click();
+					}
+				});
+			$(this).removeClass('show').addClass('hide');
+		}
+		else {
+			$('.left_panel').animate({
+				left:"-=400"
+				}, 700, function() {
+					//$(".slider_right").click();
+				});
+			$(this).removeClass('hide').addClass('show');
+		}
+	});
+});
+
+$(function(){
+        $('.resultsSlider').click(function(){
+                if($(this).hasClass('show')){
+
+                        $(".resultsSlider,.right_panel").animate({
+                                right:"+=245"
+                                }, 700, function() {
+                                        //$(".slider").click();
+                                });
+                        $(this).html('&raquo;').removeClass('show').addClass('hide');
+                }
+                else {
+                        $('.slider_right, .right_panel').animate({
+                                right:"-=245"
+                                }, 700, function() {
+                                        //$(".slider").click();
+                                });
+                        $(this).html('').removeClass('hide').addClass('show');
+                }
+        });
+});
+
+$(function(){
+	$("#startdate_selector").datepicker({dateFormat: 'yy-mm-dd',defaultDate:'2000-01-01'});
+	$("#enddate_selector").datepicker({dateFormat: 'yy-mm-dd',defaultDate:'2015-06-01'});
+	$("#tile_criteria").accordion();
+	$("#accordion").accordion({heightStyle: "content"});
+	$("#build_mosaic").accordion();
+	window.tile_results_panel=$("#tile_results").accordion();
+	var satellite_names = [
+		"ls7",
+		"ls8"
+	];
+	function split(val) {
+		return val.split(/,\s*/);
+	}
+	function extractLast(term) {
+		return split(term).pop();
+	}
+//	$("#satellite_selector").autocomplete({
+//		source:satellite_names
+//	});
+	$("#satellite_selector").bind("keydown", function(event){
+		if(event.keyCode === $.ui.keyCode.TAB &&
+			$(this).autocomplete("instance").menu.action ) {
+				event.preventDefault();
+		}
+	}).autocomplete({
+		minLength:0,
+		source:function(request,response) {
+			response($.ui.autocomplete.filter(
+				satellite_names, extractLast(request.term)));
+		},
+		focus: function() { return false; },
+		select: function(event, ui) {
+			var terms = split(this.value);
+			terms.pop();
+			terms.push(ui.item.value);
+			terms.push("");
+			this.value = terms.join(", ");
+			return false;
+		}
+	});
+
+});
+
+</script>
+</head>
+<body>
+<div id="wrap">
+	<header id="header-main">
+		<div class="spacer"></div>
+		<h1 id="brand-main"><a href="#">SDMS - Space Data Management System</a></h1>
+		<nav id="main-nav">
+			<ul>
+				<li class="active"><a href="">Map Tool</a></li>
+				<li><a href="">Graph Tool</a></li>
+				<li><a href="">Task Manager</a></li>
+			</ul>
+		</nav>
+		<nav id="utility-nav">
+			<ul>
+				<li><a href="" class="nav-properties">Properties</a></li>
+				<li><a href="" class="nav-help">Help</a></li>
+				<li><a href="" class="nav-cset">CSET</a></li>
+			</ul>
+		</nav>
+	</header>
+	<div id="main-content">
+		<div id="map-canvas"></div>
+		<div id="optionsPanel" class="panel left_panel"> <a href="#" class="slider show optionsSlider"></a>
+			<div class="panelContainer">
+				<h2>Options</h2>
+				<form>
+					<div id="accordion">
+						<h3>Source Options</h3>
+						<div class="accordionContent">
+							<div class="fieldSet">
+								<label id="label1" for="field1">Data Products</label>
+								<div class="field">
+									<select id="fielz1" name="field1" tabindex="1" data-native-menu="false" multiple >
+										<option value="choose-one" data-placeholder="true">Choose one...</option>
+										<option value="NDVI 8-day (Terra MODIS)" >NDVI 8-day (Terra MODIS)</option>
+										<option value="NDVI 8-day (Terra MODIS)" >NDVI 8-day (Terra MODIS)</option>
+										<option value="NDVI 8-day (Terra MODIS)" >NDVI 8-day (Terra MODIS)</option>
+										<option value="NDVI 8-day (Terra MODIS)" >NDVI 8-day (Terra MODIS)</option>
+										<option value="NDVI 8-day (Terra MODIS)" >NDVI 8-day (Terra MODIS)</option>
+									</select>
+								</div>
+								<div class="helper"><a>?</a></div>
+							</div>
+							<hr />
+							<div class="fieldSet">
+								<label id="label2" for="field2">Image Date</label>
+								<div class="field">
+									<!--<input type="text" id="startdate_selector"/>&nbsp;&nbsp;<input type="text" id="enddate_selector"/>-->
+								</div>
+								<div class="helper"><a>?</a></div>
+							</div>
+							<div class="fieldSet">
+								<label id="label2" for="field2">Season</label>
+								<div class="field">
+									<select id="seson_select" name="field2" tabindex="" data-native-menu="false" >
+										<option value="" class="season_no_restriction" selected>No Restriction</option>
+										<option value="" class="season_custom">Custom</option>
+										<option value="" class="season_preset">Season Option</option>
+										<option value="" class="season_preset">Season Option</option>
+										<option value="" class="season_preset">Season Option</option>
+										<option value="" class="season_preset">Season Option</option>
+										<option value="" class="season_preset">Season Option</option>
+									</select>
+								</div>
+								<div class="helper"><a>?</a></div>
+							</div>
+							<div id="season_no_restriction_dates" class="season_dates_block">
+								<div class="fieldSet">
+								<label for="season_no_restriction_from">Start Date</label>
+								<input type="text" id="season_no_restriction_start_date" name="season_no_restriction_start_date">
+								<br/>
+								<label for="season_no_restriction_to">End Date</label>
+								<input type="text" id="season_no_restriction_end_date" name="season_no_restriction_end_date">
+								</div>
+							</div>
+							<div id="season_custom_dates" class="season_dates_block">
+								<div class="fieldSet">
+									<label>Season Begins</label>
+									<label class="smallLabel">Month</label>
+									<input type="text" id="season_custom_start_month" name="season_custom_start_month" style="width:25px" />
+									<label class="smallLabel">Day</label>
+									<input type="text" id="season_custom_start_day" name="season_custom_start_day" style="width:35px" />
+								</div>
+								<div class="fieldSet">
+								<label>Season Ends</label>
+								<label class="smallLabel">Month</label>
+								<input type="text" id="season_custom_end_month" name="season_custom_end_month" style="width:25px" />
+								<label class="smallLabel">Day</label>
+								<input type="text" id="season_custom_end_day" name="season_custom_end_day" style="width:35px" />
+								</div>
+								<div class="fieldSet">
+								<label for="season_custom_start_year">Start Year</label>
+								<input type="text" id="season_custom_start_year" name="season_custom_start_year" style="width:75px" />
+								<br>
+								<label for="season_custom_end_year">End Year</label>
+								<input type="text" id="season_custom_end_year" name="season_custom_end_year" style="width:75px" />
+								</div>
+							</div>
+							<div id="season_preset_dates" class="season_dates_block">
+								<div class="fieldSet">
+								<label for="season_preset_start_year">Start Year</label>
+								<input type="text" id="season_preset_start_year" name="season_preset_start_year" style="width:75px" />
+								<br/>
+								<label for="season_preset_end_year">End Year</label>
+								<input type="text" id="season_preset_end_year" name="season_preset_end_year" style="width:75px"/>
+								</div>
+							</div>
+							<div id="season_error_dates" class="season_dates_block"> You Have selected an invalid Season. </div>
+							<script>
+										$(document).ready(function(){
+											selected_season_type = $('#seson_select option:selected').attr('class');
+											show_season_dates_block(selected_season_type);
+
+											$( "#season_no_restriction_start_date" ).datepicker({
+											  defaultDate: "+1w",
+											  changeMonth: true,
+											  numberOfMonths: 3,
+											  changeMonth: true,
+      										  changeYear: true,
+											  onClose: function( selectedDate ) {
+												$( "#season_no_restriction_end_date" ).datepicker( "option", "minDate", selectedDate );
+											  }
+											});
+											$( "#season_no_restriction_end_date" ).datepicker({
+											  defaultDate: "+1w",
+											  changeMonth: true,
+											  numberOfMonths: 3,
+											  changeMonth: true,
+      										  changeYear: true,
+											  onClose: function( selectedDate ) {
+												$( "#season_no_restriction_start_date" ).datepicker( "option", "maxDate", selectedDate );
+											  }
+											});
+										});
+
+										$(document).on('change','#seson_select',function(){
+											selected_season_type = $('#seson_select option:selected').attr('class');
+											show_season_dates_block(selected_season_type);
+										});
+
+										function show_season_dates_block(type){
+											$('.season_dates_block').hide();
+											switch(type) {
+												case 'season_no_restriction':
+													$('#season_no_restriction_dates').show();
+													break;
+												case 'season_custom':
+													$('#season_custom_dates').show();
+													break;
+												case 'season_preset':
+													$('#season_preset_dates').show();
+													break;
+												default:
+													$('#season_error_dates').show();
+													break;
+											}
+										}
+									</script>
+									<style>
+										div.season_dates_block{display:none;}
+									</style>
+
+						</div>
+						<h3>Mask</h3>
+						<div class="accordionContent"> Form Fields Here </div>
+						<h3>Shape</h3>
+						<div class="accordionContent">
+							<div class="fieldSet threeRadials">
+								<label for="latLong-box">
+									<input id="latLong-box" type="radio" name="shape_type" value="lat long box" checked>
+									Lat/Long</label>
+								<label for="bounding-box">
+									<input type="radio" id="bounding-box" name="shape_type" value="select bounding box">
+									Bounding Box</label>
+								<label for="shape-selector">
+									<input type="radio" id="shape-selector" name="shape_type" value="shape selector">
+									Shape Selector</label>
+							</div>
+							<hr />
+							<div id="shape_lat_long_box_block" class="shape_block">
+								<div class="fieldSet">
+									<label>Longitude</label>
+									<label class="smallLabel">Min</label>
+									<input type="text" style="width:75px;" />
+									<label class="smallLabel">Max</label>
+									<input  style="width:75px;"  />
+								</div>
+								<div class="fieldSet">
+									<label>Latitude</label>
+									<label class="smallLabel">Min</label>
+									<input type="text" style="width:75px;" />
+									<label class="smallLabel">Max</label>
+									<input  style="width:75px;"  />
+								</div>
+							</div>
+							<div id="shape_select_box_block" class="shape_block"> SELECT BOUNDING BOX </div>
+							<div id="shape_selector_block" class="shape_block"> SHAPE SELECTOR </div>
+							<div id="shape_error_block" class="shape_block"> You have selected an invalid shape type. </div>
+							<script>
+
+						$(document).ready(function(){
+							selected_shape_type = $('input[name=shape_type]:checked').val();
+							show_shape_type_block(selected_shape_type);
+						});
+
+						$(document).on('change','input[name=shape_type]',function(){
+							selected_shape_type =$('input[name=shape_type]:checked').val();
+							show_shape_type_block(selected_shape_type);
+						});
+
+						function show_shape_type_block(type){
+							$('.shape_block').hide();
+							switch(type) {
+								case 'lat long box':
+									$('#shape_lat_long_box_block').show();
+									break;
+								case 'select bounding box':
+									$('#shape_select_box_block').show();
+									break;
+								case 'shape selector':
+									$('#shape_selector_block').show();
+									break;
+								default:
+									$('#shape_error_block').show();
+									break;
+							}
+						}
+					</script>
+							<style>
+						div.shape_block{display:none;}
+					</style>
+						</div>
+					</div>
+					<div class="panelBottom">
+					<div class="fieldSet">
+								<label id="label3" for="field3">Product Type</label>
+								<div class="field">
+									<select id="field1" name="field2" tabindex="" data-native-menu="false" >
+										<option value="choose-one" data-placeholder="true">Choose one...</option>
+										<option value="" >None</option>
+										<option value="" >None</option>
+										<option value="" >None</option>
+										<option value="" >None</option>
+									</select>
+								</div>
+								<div class="helper"><a>?</a></div>
+							</div>
+						<div class="fieldSet">
+							<label id="label1" for="field1">Name</label>
+							<div class="field">
+								<input type="text"/>
+							</div>
+							<div class="helper"><a>?</a></div>
+						</div>
+						<div class="submitBlock">
+							<button class="greyButton" type="button" onclick="demo_lux()">Preview Job</button>
+							<button class="yellowButton" type="button" onclick="">Submit Task</button>
+						</div>
+						<div class="previewBlock">
+							<h3>Preview</h3>
+							<ul class="resultsList">
+								<li>Pixels: 230158</li>
+								<li>Hectares: 1207</li>
+								<li>Estimate Run Time: 3d, 2hr, 37min</li>
+							</ul>
+						</div>
+					</div>
+				</form>
+			</div>
+		</div>
+
+		<!-- RIGHT PANEL NEEDS TO GO -->
+		<div id="resultsPanel" class="panel right_panel"> <a href="#" class="right_slider show resultsSlider"></a>
+			<div class="panelContainer">
+				<div class="resultsSection">
+					<ul class="resultsList">
+						<li>Pixels: 230158</li>
+						<li>Hectares: 1207</li>
+						<li>Estimate Run Time: 3d, 2hr, 37min</li>
+					</ul>
+				</div>
+				<div class="tasksSection">
+					<h2>Available Tasks</h2>
+					<form>
+						<div class="fieldSet">
+							<label id="label1" for="field1">Type</label>
+							<div class="field">
+								<select id="field11" name="field1" tabindex="1" data-native-menu="false" >
+									<option value="true_color" >True Color Mosaic</option>
+									<option value="false_color" >False Color</option>
+									<option value="" >Other</option>
+									<option value="" >Other</option>
+									<option value="" >Other</option>
+									<option value="" >Other</option>
+								</select>
+							</div>
+							<div class="helper"><a>?</a></div>
+						</div>
+						<div class="fieldSet"> </div>
+						<div>
+							<button class="yellowButton" onclick="show_marker()">Create</button>
+							<button type="button" onclick="show_marker_demo()">Get Mosaic</button>
+						</div>
+					</form>
+				</div>
+			</div>
+		</div>
+
+		<!-- BEGIN QUEUE -->
+
+		<div id="queuePanel" class="panel"> <a href="#" class="slider show queueSlider"></a>
+			<div class="panelContainer">
+				<div class="queueHeader">
+					<h2>Queue</h2>
+					<button class="yellowButton" type="button" onclick="">Open Task Manager</button>
+				</div>
+				<div class="queueBody">
+					<ul>
+						<li><span class="percentComplete">37%</span>
+							<div class="progressbar1"></div>
+							<span class="taskName">Task Name</span><span class="sep">/</span><span class="taskType">Task Type</span><a href="">Cancel</a></li>
+						<li><span class="percentComplete">37%</span>
+							<div class="progressbar2"></div>
+							<span class="taskName">Task Name</span><span class="sep">/</span><span class="taskType">Task Type</span><a href="">Cancel</a></li>
+						<li><span class="percentComplete">37%</span>
+							<div class="progressbar3"></div>
+							<span class="taskName">Task Name</span><span class="sep">/</span><span class="taskType">Task Type</span><a href="">Cancel</a></li>
+					</ul>
+					<script>
+					  $(function() {
+						$( ".progressbar1" ).progressbar({value: 100});
+						$( ".progressbar2" ).progressbar({value: 0});
+						$( ".progressbar3" ).progressbar({value: 0});
+					  });
+					</script>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+<!--
+
+<script>
+function demo_lux(){
+	$('.percentComplete').html("0%");
+	$('.taskName').html("Finding results");
+	$('.taskType').html("(Searching)");
+	setTimeout(demo_phase_2,1000);
+}
+function demo_phase_2(){
+	$('.percentComplete').html("100%");
+	$('.taskName').html("Found results");
+	$('.taskType').html("");
+	$('.resultsSlider').click();
+	$('.optionsSlider').click();
+}
+</script>
+-->
+
+<script>
+function show_marker_demo(){
+	$('.percentComplete').html("0%");
+	$('.taskName').html("Generating");
+	$('.taskType').html("(Building Mosaic)");
+	setTimeout(show_marker_demo_2,1000);
+}
+function show_marker_demo_2(){
+	$('.percentComplete').html("50%");
+	setTimeout(show_marker,1000);
+}
+function show_marker(){
+	option = $("#field11").val();
+	//alert("option: "+option);
+	if(option=="true_color"){
+
+		window.Marker.setIcon('http://datacube.ceos-cove.org/38_39_1_2_200_200.png');
+	} else if(option=="false_color"){
+		window.Marker.setIcon('http://datacube.ceos-cove.org/38_39_1_2_200_200_false.png');
+	}
+	$('.percentComplete').html("100%");
+	window.Marker.setVisible(true);
+	//alert("test: "+option);
+}
+</script>
+<script>
+//should go after div is loaded
+function initialize() {
+	window.marker_cache = [];
+
+	var myLatlng = new google.maps.LatLng(1,39);
+	var mapOptions = {
+		center: { lat: 0, lng: 38},
+		zoom: 7,
+		center: myLatlng
+	};
+	var map = new google.maps.Map(document.getElementById('map-canvas'),mapOptions);
+	map.setOptions({draggable: false, zoomControl: false, scrollwheel: false, disableDoubleClickZoom: true});
+	var image = 'http://datacube.ceos-cove.org/38_39_1_2_200_200.png';
+	window.Marker = new google.maps.Marker({
+      position: myLatlng,
+      map: map,
+      icon: image
+  });
+	window.Marker.setVisible(false);
+}
+function build_marker(){
+
+}
+google.maps.event.addDomListener(window, 'load', initialize);
+</script>
+</body>
+</html>
