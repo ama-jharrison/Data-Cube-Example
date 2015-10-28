@@ -5,6 +5,7 @@
 var url = "http://bigdata-node2.ama-inc.com:5000/";
 
 function get_data(){
+  console.log("Getting jobs");
   var requester = new XMLHttpRequest();
   requester.open("GET",url+"status",false);
   requester.send();

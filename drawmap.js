@@ -625,12 +625,12 @@ DrawMap.prototype.geoCenterXY = function(){
   var height = this.canvas.height;
   var x = width/2;
   var y = height/2;
-  var zoom = 7;
+  var zoom = 8;
    var s = Math.min(Math.max(Math.sin(1.5 * (Math.PI / 180)), -.9999), .9999),
        tiles = 1 << zoom,
        centerPoint={
-                    x: 128 + 38 * (256/ 360),
-                    y: 128 + 0.5 * Math.log((1 + s) / (1 - s))
+                    x: 128 + -75 * (256/ 360),
+                    y: 128 + 0 * Math.log((1 + s) / (1 - s))
                        *-(256 / (2 * Math.PI))
                    },
        mousePoint={
@@ -681,14 +681,14 @@ DrawMap.prototype.convertXYToGeo = function(mouseX,//x-coordinate of the mouseev
               var lng = this.lng;
               var width = this.canvas.width;
               var height = this.canvas.height;
-              var zoom = 7;
+              var zoom = 8;
 	      var x = ((this.dw/this.canvasW)*mouseX)+this.sx-(this.canvasW/2);
 	      var y = ((this.dh/this.canvasH)*mouseY)+this.sy-(this.canvasH/2);
        var s = Math.min(Math.max(Math.sin(lat * (Math.PI / 180)), -.9999), .9999),
        tiles = 1 << zoom,
        centerPoint={
-                    x: 128 + lng * (256/ 360),
-                    y: 128 + 0.5 * Math.log((1 + s) / (1 - s))
+                    x: 128 + -75 * (256/ 360),
+                    y: 128 + 0 * Math.log((1 + s) / (1 - s))
                        *-(256 / (2 * Math.PI))
                    },
        mousePoint={

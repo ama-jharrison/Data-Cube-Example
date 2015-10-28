@@ -1,6 +1,6 @@
 //Datacube webworker
 "use strict";
-var baseurl = "http://bigdata-node3.ama-inc.com:5000/";
+var baseurl = "http://bigdata-node2.ama-inc.com:5000/";
 var preview = false;
 var download = false;
 var criteria = "";
@@ -14,6 +14,7 @@ var alternative = "";
 var brid = "";
 var irid = "";
 
+alert("Rabbit 2 out of the hat!");
 
 self.addEventListener("message", function(e) {
     // the passed-in data is available via e.data
@@ -217,7 +218,6 @@ function check_full_size_image(rid){
   var response = JSON.parse(requester.responseText);
   if(response.request!="WAIT"){
 
-
     var dlimage=response.request;
     var dlalternative = response.alternative; //RED MARKED NO DATA
     postMessage("{\"msg\":\"download\",\"rid\":\""+rid+"\",\"image\":\""+dlimage+"\",\"alternative\":\""+dlalternative+"\"}");
@@ -256,3 +256,4 @@ function main(){
   setTimeout(read_listing,2000,lrid); //wait 2 seconds and call this
 }
 
+alert("Rabbit 3 out of the hat!");

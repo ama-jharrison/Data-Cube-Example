@@ -34,7 +34,7 @@ function amionline(){
 
 		var xhr = new XMLHttpRequest();
 		r_id = Math.round(Math.random() * 10000);
-		var target_file = "http://bigdata-node2.ama-inc.com/kenya.png?test="+r_id;
+		var target_file = "http://bigdata-node3.ama-inc.com/kenya.png?test="+r_id;
 		xhr.open('HEAD',target_file,false);
 
 		xhr.send();
@@ -251,7 +251,7 @@ function download_selected_mosaic(){
 			console.log("response from worker: "+resp);
 			var obj = JSON.parse(resp);
 			if(obj.msg == "download"){
-				window.location.href = "http://bigdata-node2.ama-inc.com"+obj.image+"/download";
+				window.location.href = "http://bigdata-node3.ama-inc.com"+obj.image+"/download";
 			}
 			else if(obj.msg=="start"){
 				add_task_bar(obj.rid,obj.description);
@@ -293,7 +293,7 @@ function build_criteria(){
 			dm.redraw();
 		}
 		else if(obj.msg == "download"){
-			window.location.href = "http://bigdata-node2.ama-inc.com"+obj.image+"/download";
+			window.location.href = "http://bigdata-node3.ama-inc.com"+obj.image+"/download";
 		}
 		else if(obj.msg=="start"){
 			add_task_bar(obj.rid,obj.description);
@@ -310,7 +310,7 @@ function build_criteria(){
 	window.dc_workers.push(w);
 
 	/*
-	var jurl = "http://bigdata-node2.ama-inc.com:5555/list/"+cs+"/submit";
+	var jurl = "http://bigdata-node3.ama-inc.com:5555/list/"+cs+"/submit";
 	console.log("submiting list request");
 	$.get(jurl,function(data){
 		console.log(data);
@@ -324,7 +324,7 @@ function build_criteria(){
 	//$("#resultsList").append("<li>24336000000 pixels found.</li><li>1833333 Hectares</li>");
 	window.criteria_str=cs;
 	//show_tile_results();
-	//jsonUrl = "http://bigdata-node2.ama-inc.com:5000/list/"+criteria_str;
+	//jsonUrl = "http://bigdata-node3.ama-inc.com:5000/list/"+criteria_str;
 	*/
 }
 
@@ -358,7 +358,7 @@ function submit_full_run(){
 		return;
 	}
 	/*
-	var sub_req_jurl = "http://bigdata-node2.ama-inc.com:5555/mosaic/"+cs+"/"+bands+"/submit";
+	var sub_req_jurl = "http://bigdata-node3.ama-inc.com:5555/mosaic/"+cs+"/"+bands+"/submit";
 	$.get(sub_req_jurl,function(data2){
 		var resp2 = $.parseJSON(data2);
 		if(resp2.request!="WAIT"){
@@ -421,7 +421,7 @@ function check_jobs(){
 			window.dc_requests[i].status="DONE"; //mark for deletion
 			console.log("checking list job ");
 			//list request submitted, check on it
-			var jurl = "http://bigdata-node2.ama-inc.com:5555/list/"+dc_request.rid+"/view";
+			var jurl = "http://bigdata-node3.ama-inc.com:5555/list/"+dc_request.rid+"/view";
 			$.get(jurl,function(data){
 				//console.log(data);
 				var resp = $.parseJSON(data);
@@ -434,7 +434,7 @@ function check_jobs(){
 					} else{
 
 						//Start generating the preview image.
-						var sub_req_jurl = "http://bigdata-node2.ama-inc.com:5555/mosaic/"+dc_request.criteria+"/RED,GREEN,BLUE/preview";
+						var sub_req_jurl = "http://bigdata-node3.ama-inc.com:5555/mosaic/"+dc_request.criteria+"/RED,GREEN,BLUE/preview";
 						$.get(sub_req_jurl,function(data2){
 							var resp2 = $.parseJSON(data2);
 							if(resp2.request!="WAIT"){
@@ -453,7 +453,7 @@ function check_jobs(){
 		else if(status=="preview"){
 			console.log("checking preview job");
 			var rid = dc_request.rid;
-			var jurl = "http://bigdata-node2.ama-inc.com:5555/mosaic/"+dc_request.rid+"/png/view/submit";
+			var jurl = "http://bigdata-node3.ama-inc.com:5555/mosaic/"+dc_request.rid+"/png/view/submit";
 			//attempt to translate
 			var sent = false;
 			$.get(jurl,function(data){
@@ -467,7 +467,7 @@ function check_jobs(){
 				}
 
 			});
-			jurl = "http://bigdata-node2.ama-inc.com:5555/mosaic/"+dc_request.rid+"/bounds/submit";
+			jurl = "http://bigdata-node3.ama-inc.com:5555/mosaic/"+dc_request.rid+"/bounds/submit";
 			//attempt to translate
 			$.get(jurl,function(data){
 				var resp = $.parseJSON(data);
@@ -490,7 +490,7 @@ function check_jobs(){
 			if(!window.preview_items){
 				window.preview_items=[];
 			}
-			var jurl = "http://bigdata-node2.ama-inc.com:5555/mosaic/"+dc_request.rid+"/view";
+			var jurl = "http://bigdata-node3.ama-inc.com:5555/mosaic/"+dc_request.rid+"/view";
 			$.get(jurl,function(data){
 				var resp = $.parseJSON(data);
 				if(resp.request!="WAIT"){
@@ -517,7 +517,7 @@ function check_jobs(){
 			if(!window.preview_items){
 				window.preview_items=[];
 			}
-			var jurl = "http://bigdata-node2.ama-inc.com:5555/mosaic/"+dc_request.rid+"/bounds/view";
+			var jurl = "http://bigdata-node3.ama-inc.com:5555/mosaic/"+dc_request.rid+"/bounds/view";
 			$.get(jurl,function(data){
 				var resp = $.parseJSON(data);
 				if(resp.request!="WAIT"){
@@ -541,7 +541,7 @@ function check_jobs(){
 		else if(status=="mosaic"){
 			console.log("checking preview job");
 			var rid = dc_request.rid;
-			var jurl = "http://bigdata-node2.ama-inc.com:5555/mosaic/"+dc_request.rid+"/png/view/submit";
+			var jurl = "http://bigdata-node3.ama-inc.com:5555/mosaic/"+dc_request.rid+"/png/view/submit";
 			//attempt to translate
 			var sent = false;
 			$.get(jurl,function(data){
@@ -555,7 +555,7 @@ function check_jobs(){
 				}
 
 			});
-			jurl = "http://bigdata-node2.ama-inc.com:5555/mosaic/"+dc_request.rid+"/bounds/submit";
+			jurl = "http://bigdata-node3.ama-inc.com:5555/mosaic/"+dc_request.rid+"/bounds/submit";
 			//attempt to translate
 			$.get(jurl,function(data){
 				var resp = $.parseJSON(data);
@@ -578,7 +578,7 @@ function check_jobs(){
 			if(!window.preview_items){
 				window.preview_items=[];
 			}
-			var jurl = "http://bigdata-node2.ama-inc.com:5555/mosaic/"+dc_request.rid+"/view";
+			var jurl = "http://bigdata-node3.ama-inc.com:5555/mosaic/"+dc_request.rid+"/view";
 			$.get(jurl,function(data){
 				var resp = $.parseJSON(data);
 				if(resp.request!="WAIT"){
@@ -605,7 +605,7 @@ function check_jobs(){
 			if(!window.preview_items){
 				window.preview_items=[];
 			}
-			var jurl = "http://bigdata-node2.ama-inc.com:5555/mosaic/"+dc_request.rid+"/bounds/view";
+			var jurl = "http://bigdata-node3.ama-inc.com:5555/mosaic/"+dc_request.rid+"/bounds/view";
 			$.get(jurl,function(data){
 				var resp = $.parseJSON(data);
 				if(resp.request!="WAIT"){
@@ -676,23 +676,23 @@ function build_mosaic(){
 		return;
 	}
 	if(mode == "true_color") {
-	        jsonUrl = "http://bigdata-node2.ama-inc.com:5000/cloudfree/"+window.criteria_str;
+	        jsonUrl = "http://bigdata-node3.ama-inc.com:5000/cloudfree/"+window.criteria_str;
 					window.criteria_mode="rgb_tiles/tile_rgb";
 	}
 	else if(mode == "tci_b") {
-                jsonUrl = "http://bigdata-node2.ama-inc.com:5000/tci/"+window.criteria_str;
+                jsonUrl = "http://bigdata-node3.ama-inc.com:5000/tci/"+window.criteria_str;
 								window.criteria_mode="b_tiles/kenya_b_tile_tci";
 	}
 	else if(mode == "tci_g") {
-								jsonUrl = "http://bigdata-node2.ama-inc.com:5000/tci/"+window.criteria_str;
+								jsonUrl = "http://bigdata-node3.ama-inc.com:5000/tci/"+window.criteria_str;
 								window.criteria_mode="g_tiles/kenya_g_tile_tci";
 	}
 	else if(mode == "tci_w") {
-								jsonUrl = "http://bigdata-node2.ama-inc.com:5000/tci/"+window.criteria_str;
+								jsonUrl = "http://bigdata-node3.ama-inc.com:5000/tci/"+window.criteria_str;
 								window.criteria_mode="w_tiles/kenya_w_tile_tci";
 	}
 	else if(mode == "false_color") {
-                jsonUrl = "http://bigdata-node2.ama-inc.com:5000/falsecolor/"+window.criteria_str;
+                jsonUrl = "http://bigdata-node3.ama-inc.com:5000/falsecolor/"+window.criteria_str;
 								window.criteria_mode="fc_tiles/tile_fc";
 	}
 
@@ -828,21 +828,17 @@ $(function(){
 <div id="wrap">
 	<header id="header-main">
 		<div class="spacer"></div>
-		<h1 id="brand-main"><a href="#"></a></h1>
+		<h1 id="brand-main"><a href="#"></a><img src="assets/media/alpha.png" style="postion:absolute"></h1>
 		<nav id="main-nav">
 			<ul>
 				<li><a href="index.html">Home</a></li>
 				<li class="active"><a href="#">Map Tool</a></li>
-				<li><a href="graph_tool.html">Graph Tool</a></li>
 				<li><a href="task_manager.html">Task Manager</a></li>
-				<li><a href="Cesium/Apps/PixelVisualization/index.html">Visualization<sup>Labs</sup></a></li>
 			</ul>
 		</nav>
 		<nav id="utility-nav">
 			<ul>
 				<li><a href="" class="nav-properties">Preferences</a></li>
-				<li><a href="" class="nav-help">Help</a></li>
-				<li><a href="" class="nav-cset">CSET</a></li>
 			</ul>
 		</nav>
 	</header>
@@ -851,7 +847,7 @@ $(function(){
 			<h2>Information</h2>
 			<form>
 				<div style="background-color:#fff;">
-					<p>Please select your data products, date options, and specify a shape for the area you would like to request. The selectable bounds of this application are from <b>-7 to 7 latitude</b> and from <b>33 to 42 longitude</b>. Finally, select your product type to view a mosaic product.</p>
+					<p>Please select your data products, date options, and specify a shape for the area you would like to request. The selectable bounds of this application are from <b>-2 to 2 latitude</b> and from <b>-77 to -73 longitude</b>. Finally, select your product type to view a mosaic product.</p>
 					<!--<hr />-->
 					<p>You may click on a completed mosaic task entry in the bottom left of the options panel to select that product and then choose an export format and download the product. You may right click on a mosaic to show the scenes that compose this mosaic.</p>
 				</div>
@@ -1377,10 +1373,10 @@ $('#samscene').change(function(){
 });
 
 var dm = new DrawMap("canvas");
-dm.setBackgroundImageFromURL("kenya_-1_5__38.png");
-dm.setGeoCenter(-1.5,38.0);
+dm.setBackgroundImageFromURL("colombia_z8_600_600_ll_0.5_-75.png");
+dm.setGeoCenter(0.5,-75.0);
 dm.setCSSScaleFactor({width:1.0,height:1.0});
-dm.setZoom(7.0);
+dm.setZoom(8.0);
 //dm.enablePanning(true);
 //dm.enableDrawing(true);
 document.addEventListener('mouseMove',function(evt){
@@ -1430,9 +1426,9 @@ dm.createGrid("#FF0000",1.0,1.0,true);
 document.addEventListener('redraw',function(evt){
   console.log(evt);
   if(evt.detail=="canvas"){
-    //dm.drawImageFromURL("http://bigdata-node2.ama-inc.com/kenya.png");
+    //dm.drawImageFromURL("http://bigdata-node3.ama-inc.com/kenya.png");
     console.log("ding");
-    dm.setGeoCenter(-1.5,38.0);
+    dm.setGeoCenter(0.5,-75.00);
     dm.geoCenterXY();
 		dm.createGrid("#FF0000",1.0,1.0,true);
 		bb = dm.getDrawnBoundsLatLng();

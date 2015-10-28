@@ -50,16 +50,12 @@ td {
 			<ul>
 				<li><a href="index.html">Home</a></li>
 				<li><a href="map_tool.html">Map Tool</a></li>
-				<li><a href="graph_tool.html">Graph Tool</a></li>
 				<li class="active"><a href="#">Task Manager</a></li>
-				<li><a href="Cesium/Apps/PixelVisualization/index.html">Visualization<img src="assets/icons/flask2.png" /></a></li>
 			</ul>
 		</nav>
 		<nav id="utility-nav">
 			<ul>
 				<li><a href="" class="nav-properties">Preferences</a></li>
-				<li><a href="" class="nav-help">Help</a></li>
-				<li><a href="" class="nav-cset">CSET</a></li>
 			</ul>
 		</nav>
 	</header>
@@ -69,7 +65,7 @@ td {
 		<h1 class="title">Task Manager</h1>
 		<h2>
 			<div id="task_list">
-
+				<p>Loading...</p>
 			</div>
 		<script>
 			var w = new Worker("tmw.js?q="+Math.round((Math.random()*9999)));
